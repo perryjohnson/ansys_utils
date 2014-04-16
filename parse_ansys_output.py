@@ -5,7 +5,7 @@ NLIST.lis
 PRNSOL.lis
 
 Author: Perry Roth-Johnson
-Last modified: April 15, 2014
+Last modified: April 16, 2014
 
 """
 
@@ -13,16 +13,21 @@ Last modified: April 15, 2014
 import matplotlib.pyplot as plt
 import pandas as pd
 import ansys_utils as au
+from operator import attrgetter
+# helps to sort lists of objects by their attributes
+# ref: https://wiki.python.org/moin/HowTo/Sorting#Operator_Module_Functions
 
 
 # read the node list file, NLIST.lis
 nl = au.NodeList(filename='NLIST.lis')
-print nl
+# print nl
 
 # read the solution file, PRNSOL.lis
 sf = au.SolutionFile(nl.list_of_nodes, filename='PRNSOL.lis')
 
-# convert the list of node objects into a pandas DataFrame
+# sort the nodes first by spanwise location (z), then by chordwise location (x)
+nl.list_of_nodes.sort(key=attrgetter('z', 'x'))
+# assemble the node objects into a dictionary format
 list_of_dicts = []
 for node in nl.list_of_nodes:
     d = {
@@ -33,34 +38,49 @@ for node in nl.list_of_nodes:
         'uy' : node.uy
     }
     list_of_dicts.append(d)
+# convert the list of node dictionairies into a pandas DataFrame
 df = pd.DataFrame(list_of_dicts)
 
-# sort the DataFrame first by spanwise location, then by chordwise location
-dfzx = df.sort(['z','x'])
-
-# TNT: if there are multiple nodes at the same spanwise (z) location, pick only one to plot (either pick LE, TE, or x~0.0 for pitch axis)
+# plot only the nodes near the pitch axis (x=0) of the blade
+list_of_PA_nodes = []
+for node in nl.list_of_nodes:
+    # only add nodes that are near x=0 to the list
+    if abs(node.x) < 0.01:
+        list_of_PA_nodes.append(node)
+list_of_dicts_PA = []
+# convert the list of nodes near the pitch axis to a dictionary format
+for node in list_of_PA_nodes:
+    d = {
+        'node_num' : node.node_num,
+        'x' : node.x,
+        'y' : node.y,
+        'z' : node.z,
+        'uy' : node.uy
+    }
+    list_of_dicts_PA.append(d)
+# convert the list of node dictionairies into a pandas DataFrame
+df_PA = pd.DataFrame(list_of_dicts_PA)
 
 # clear all plots
 plt.close('all')
 
 # plot the planform of the blade
-plt.figure()
-plt.plot(dfzx['z'],dfzx['x'],'bx')
+fig,ax = plt.subplots()
+ax.set_aspect('equal')
+plt.plot(df['z'],df['x'],'bx',label='all nodes')
+plt.plot(df_PA['z'],df_PA['x'],'ro--',label='nodes near pitch axis')
 plt.xlabel('z, spanwise coordinate [m]')
 plt.ylabel('x, chordwise coordinate [m]')
-
-# plot only the LE of the blade
-# find nodes that have the same z-coordinate
-# pick the node with the min x-coordinate
-# save that node to a new list
-list_of_LE_nodes = []
-for node in dfzx
+plt.ylim([-1,2])
+plt.legend()
 
 # plot the nodal y-displacements vs. span
-# plt.figure()
-# plt.plot(dfzx['z'],dfzx['uy'],'bx-')
-# plt.xlabel('z, spanwise coordinate [m]')
-# plt.ylabel('uy, nodal y-displacement [m]')
+plt.figure()
+plt.plot(df['z'],df['uy'],'bx-',label='all nodes')
+plt.plot(df_PA['z'],df_PA['uy'],'ro--',label='nodes near pitch axis')
+plt.xlabel('z, spanwise coordinate [m]')
+plt.ylabel('uy, nodal y-displacement [m]')
+plt.legend(loc='upper left')
 
 # show all plots
 plt.show()
