@@ -76,7 +76,7 @@ plt.legend()
 
 # plot the nodal y-displacements vs. span
 plt.figure()
-plt.plot(df['z'],df['uy'],'bx-',label='all nodes')
+plt.plot(df['z'],df['uy'],'bx',label='all nodes')
 plt.plot(df_PA['z'],df_PA['uy'],'ro--',label='nodes near pitch axis')
 plt.xlabel('z, spanwise coordinate [m]')
 plt.ylabel('uy, nodal y-displacement [m]')
