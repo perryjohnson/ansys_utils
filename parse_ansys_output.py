@@ -5,7 +5,7 @@ NLIST.lis
 PRNSOL.lis
 
 Author: Perry Roth-Johnson
-Last modified: April 16, 2014
+Last modified: April 22, 2014
 
 """
 
@@ -71,7 +71,7 @@ plt.plot(df['z'],df['x'],'bx',label='all nodes')
 plt.plot(df_PA['z'],df_PA['x'],'ro--',label='nodes near pitch axis')
 plt.xlabel('z, spanwise coordinate [m]')
 plt.ylabel('x, chordwise coordinate [m]')
-plt.ylim([-1,2])
+plt.ylim([-10,20])
 plt.legend()
 
 # plot the nodal y-displacements vs. span

@@ -1,7 +1,7 @@
 """Create entities for an ANSYS shell model.
 
 Author: Perry Roth-Johnson
-Last modified: April 15, 2014
+Last modified: April 22, 2014
 
 """
 
@@ -136,4 +136,8 @@ class SolutionFile:
             if disp_match: # if we find a node
                 # save the 2 entries
                 (node_num, uy) = line.strip().split()
-                self.list_of_nodes[int(node_num)-1].uy = uy
+                try:
+                    self.list_of_nodes[int(node_num)-1].uy = uy
+                except IndexError:
+                    n = int(node_num)
+                    print 'index {0} (node_num={1}) is out of range'.format(n-1, n)
